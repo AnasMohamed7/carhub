@@ -21,40 +21,40 @@ const currencyRates = {
 };
 
 // DOM Elements
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Check if user is logged in (from localStorage)
     checkLoginStatus();
-    
+
     // Setup form validation if forms exist
     setupFormValidation();
-    
+
     // Setup car filtering and sorting if on cars page
     setupCarFilters();
-    
+
     // Setup car card click events
     setupCarCardEvents();
-    
+
     // Setup user menu dropdown
     setupUserMenu();
-    
+
     // Setup language and currency selectors
     setupLanguageCurrencySelectors();
-    
+
     // Load saved language and currency
     loadSavedPreferences();
-    
+
     // Setup price range slider
     setupPriceRangeSlider();
-    
+
     // Setup search functionality
     setupSearchFunctionality();
-    
+
     // Setup dark mode toggle
     setupDarkMode();
-    
+
     // Setup time inputs on car details page
     setupTimeInputs();
-    
+
     // Setup contact form
     setupContactForm();
 });
@@ -64,7 +64,7 @@ function checkLoginStatus() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const username = localStorage.getItem('username');
     const authButtons = document.querySelector('.auth-buttons');
-    
+
     if (isLoggedIn && username && authButtons) {
         // Replace login/signup buttons with user menu
         authButtons.innerHTML = `
@@ -80,9 +80,9 @@ function checkLoginStatus() {
                 </div>
             </div>
         `;
-        
+
         // Add logout event listener
-        document.getElementById('logout-btn').addEventListener('click', function(e) {
+        document.getElementById('logout-btn').addEventListener('click', function (e) {
             e.preventDefault();
             logout();
         });
@@ -92,19 +92,19 @@ function checkLoginStatus() {
 // Setup dark mode toggle
 function setupDarkMode() {
     const darkModeToggle = document.getElementById('dark-mode-toggle');
-    
+
     if (darkModeToggle) {
         // Check if dark mode is enabled in localStorage
         const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        
+
         // Apply dark mode if enabled
         if (isDarkMode) {
             document.body.classList.add('dark-mode');
             darkModeToggle.checked = true;
         }
-        
+
         // Add event listener to toggle dark mode
-        darkModeToggle.addEventListener('change', function() {
+        darkModeToggle.addEventListener('change', function () {
             if (this.checked) {
                 document.body.classList.add('dark-mode');
                 localStorage.setItem('darkMode', 'true');
@@ -121,44 +121,44 @@ function setupTimeInputs() {
     const hoursInput = document.getElementById('hours');
     const minutesInput = document.getElementById('minutes');
     const totalPriceElement = document.getElementById('total-price');
-    
+
     if (hoursInput && minutesInput && totalPriceElement) {
-        const updateTotalPrice = function() {
+        const updateTotalPrice = function () {
             const hours = parseInt(hoursInput.value) || 0;
             const minutes = parseInt(minutesInput.value) || 0;
-            
+
             // Ensure hours is at least 1
             if (hours < 1 && minutes === 0) {
                 hoursInput.value = 1;
                 return;
             }
-            
+
             // Calculate total time in hours
             const totalHours = hours + (minutes / 60);
-            
+
             // Get base price per hour (assuming $10/hour for this example)
             const basePrice = 10;
-            
+
             // Calculate total price
             const totalPrice = basePrice * totalHours;
-            
+
             // Get current currency
             const currency = localStorage.getItem('currency') || 'usd';
             const rate = currencyRates[currency] || 1;
             const symbol = currency === 'usd' ? '$' : 'E£';
-            
+
             // Update total price display
             totalPriceElement.textContent = `${symbol}${(totalPrice * rate).toFixed(2)}`;
         };
-        
+
         // Add event listeners to update price when time changes
         hoursInput.addEventListener('input', updateTotalPrice);
         minutesInput.addEventListener('input', updateTotalPrice);
-        
+
         // Set initial values
         hoursInput.value = 1;
         minutesInput.value = 0;
-        
+
         // Calculate initial price
         updateTotalPrice();
     }
@@ -167,32 +167,32 @@ function setupTimeInputs() {
 // Setup contact form
 function setupContactForm() {
     const contactForm = document.getElementById('contact-form');
-    
+
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             const name = document.getElementById('contact-name').value;
             const email = document.getElementById('contact-email').value;
             const subject = document.getElementById('contact-subject').value;
             const message = document.getElementById('contact-message').value;
-            
+
             if (!name || !email || !subject || !message) {
                 showError('Please fill in all fields');
                 return;
             }
-            
+
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 showError('Please enter a valid email address');
                 return;
             }
-            
+
             // In a real app, this would send the form data to a server
             // For demo purposes, we'll just show a success message
             showToast('Your message has been sent successfully!', 'success');
-            
+
             // Clear form
             contactForm.reset();
         });
@@ -204,39 +204,39 @@ function setupLanguageCurrencySelectors() {
     // Language selector
     const languageBtn = document.getElementById('language-btn');
     const languageDropdown = document.getElementById('language-dropdown');
-    
+
     if (languageBtn && languageDropdown) {
-        languageBtn.addEventListener('click', function(e) {
+        languageBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             languageDropdown.classList.toggle('active');
-            
+
             // Close currency dropdown if open
             const currencyDropdown = document.getElementById('currency-dropdown');
             if (currencyDropdown && currencyDropdown.classList.contains('active')) {
                 currencyDropdown.classList.remove('active');
             }
         });
-        
+
         // Language selection
         const languageOptions = languageDropdown.querySelectorAll('a');
         languageOptions.forEach(option => {
-            option.addEventListener('click', function(e) {
+            option.addEventListener('click', function (e) {
                 e.preventDefault();
                 const lang = this.getAttribute('data-lang');
                 const langText = lang.toUpperCase();
-                
+
                 // Update button text
                 languageBtn.querySelector('span').textContent = langText;
-                
+
                 // Close dropdown
                 languageDropdown.classList.remove('active');
-                
+
                 // Save to localStorage
                 localStorage.setItem('language', lang);
-                
+
                 // Show toast
                 showToast(`Language changed to ${this.textContent}. Refreshing page...`, 'success');
-                
+
                 // Refresh page after a short delay
                 setTimeout(() => {
                     window.location.reload();
@@ -244,51 +244,51 @@ function setupLanguageCurrencySelectors() {
             });
         });
     }
-    
+
     // Currency selector
     const currencyBtn = document.getElementById('currency-btn');
     const currencyDropdown = document.getElementById('currency-dropdown');
-    
+
     if (currencyBtn && currencyDropdown) {
-        currencyBtn.addEventListener('click', function(e) {
+        currencyBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             currencyDropdown.classList.toggle('active');
-            
+
             // Close language dropdown if open
             const languageDropdown = document.getElementById('language-dropdown');
             if (languageDropdown && languageDropdown.classList.contains('active')) {
                 languageDropdown.classList.remove('active');
             }
         });
-        
+
         // Currency selection
         const currencyOptions = currencyDropdown.querySelectorAll('a');
         currencyOptions.forEach(option => {
-            option.addEventListener('click', function(e) {
+            option.addEventListener('click', function (e) {
                 e.preventDefault();
                 const currency = this.getAttribute('data-currency');
                 const currencyText = currency.toUpperCase();
-                
+
                 // Update button text
                 currencyBtn.querySelector('span').textContent = currencyText;
-                
+
                 // Close dropdown
                 currencyDropdown.classList.remove('active');
-                
+
                 // Save to localStorage
                 localStorage.setItem('currency', currency);
-                
+
                 // Apply currency change
                 applyCurrencyChange(currency);
-                
+
                 // Show toast
                 showToast(`Currency changed to ${currencyText}`, 'success');
             });
         });
     }
-    
+
     // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
+    document.addEventListener('click', function () {
         const dropdowns = document.querySelectorAll('.selector-dropdown');
         dropdowns.forEach(dropdown => {
             dropdown.classList.remove('active');
@@ -300,7 +300,7 @@ function setupLanguageCurrencySelectors() {
 function applyLanguageChange(lang) {
     // This is a simplified implementation
     // In a real app, you would load language files or use a translation library
-    
+
     const translations = {
         en: {
             'Find Your Perfect Ride': 'Find Your Perfect Ride',
@@ -361,7 +361,7 @@ function applyLanguageChange(lang) {
             'Rental Time': 'وقت الإيجار'
         }
     };
-    
+
     // Apply translations to elements with text content
     if (translations[lang]) {
         document.querySelectorAll('[data-translate]').forEach(element => {
@@ -370,7 +370,7 @@ function applyLanguageChange(lang) {
                 element.textContent = translations[lang][key];
             }
         });
-        
+
         // Apply translations to elements without data-translate attribute
         // This is a simplified approach - in a real app, you would use a more robust method
         document.querySelectorAll('h1, h2, p, button, a, label, span').forEach(element => {
@@ -379,7 +379,7 @@ function applyLanguageChange(lang) {
                 element.textContent = translations[lang][text];
             }
         });
-        
+
         // Apply RTL for Arabic
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     }
@@ -389,12 +389,12 @@ function applyLanguageChange(lang) {
 function applyCurrencyChange(currency) {
     const rate = currencyRates[currency] || 1;
     const symbol = currency === 'usd' ? '$' : 'E£';
-    
+
     // Update all price displays
     document.querySelectorAll('.car-price').forEach(element => {
         const priceText = element.textContent;
         const match = priceText.match(/\d+(\.\d+)?/);
-        
+
         if (match) {
             const basePrice = parseFloat(match[0]);
             const convertedPrice = (basePrice * rate).toFixed(1);
@@ -402,25 +402,25 @@ function applyCurrencyChange(currency) {
             element.textContent = `${symbol}${convertedPrice}/${hour}`;
         }
     });
-    
+
     // Update price slider values if they exist
     const minPriceInput = document.getElementById('min-price-input');
     const maxPriceInput = document.getElementById('max-price-input');
-    
+
     if (minPriceInput && maxPriceInput) {
         const minValue = parseInt(minPriceInput.value);
         const maxValue = parseInt(maxPriceInput.value);
-        
+
         minPriceInput.value = Math.round(minValue * rate);
         maxPriceInput.value = Math.round(maxValue * rate);
     }
-    
+
     // Update price display in car details page if it exists
     const totalPriceElement = document.getElementById('total-price');
     if (totalPriceElement) {
         const priceText = totalPriceElement.textContent;
         const match = priceText.match(/\d+(\.\d+)?/);
-        
+
         if (match) {
             const basePrice = parseFloat(match[0]);
             const convertedPrice = (basePrice * rate).toFixed(2);
@@ -431,126 +431,42 @@ function applyCurrencyChange(currency) {
 
 // Setup price range slider
 function setupPriceRangeSlider() {
-    const minPriceSlider = document.getElementById("min-price-slider");
-    const maxPriceSlider = document.getElementById("max-price-slider");
-    const minPriceInput = document.getElementById("min-price-input");
-    const maxPriceInput = document.getElementById("max-price-input");
-    const minPriceDisplay = document.getElementById("min-price-display");
-    const maxPriceDisplay = document.getElementById("max-price-display");
-    const sliderRange = document.querySelector(".slider-range");
-    const applyPriceFilterBtn = document.getElementById("apply-price-filter");
+    const minInput = document.getElementById("min-price-input");
+    const maxInput = document.getElementById("max-price-input");
+    const applyBtn = document.getElementById("apply-price-filter");
 
-    if (minPriceSlider && maxPriceSlider && minPriceInput && maxPriceInput && applyPriceFilterBtn) {
-        // Find min and max prices from car data
-        const prices = carData.map((car) => car.price);
-        const minPrice = Math.floor(Math.min(...prices));
-        const maxPrice = Math.ceil(Math.max(...prices));
+    if (!minInput || !maxInput || !applyBtn) return;
 
-        // Set slider and input ranges
-        minPriceSlider.min = minPriceInput.min = minPrice;
-        minPriceSlider.max = maxPriceSlider.max = maxPriceInput.max = maxPrice;
+    minInput.value = 0;
+    maxInput.value = 200;
 
-        // Set initial values
-        minPriceSlider.value = minPriceInput.value = minPrice;
-        maxPriceSlider.value = maxPriceInput.value = maxPrice;
-
-        // Update displays
-        updatePriceDisplays();
-        updateSliderRange();
-
-        // Update min slider and input when min slider changes
-        minPriceSlider.addEventListener("input", function () {
-            // Ensure min doesn't exceed max
-            if (Number.parseInt(this.value) > Number.parseInt(maxPriceSlider.value)) {
-                this.value = maxPriceSlider.value;
-            }
-
-            minPriceInput.value = this.value;
-            updatePriceDisplays();
-            updateSliderRange();
-        });
-
-        // Update max slider and input when max slider changes
-        maxPriceSlider.addEventListener("input", function () {
-            // Ensure max doesn't go below min
-            if (Number.parseInt(this.value) < Number.parseInt(minPriceSlider.value)) {
-                this.value = minPriceSlider.value;
-            }
-
-            maxPriceInput.value = this.value;
-            updatePriceDisplays();
-            updateSliderRange();
-        });
-
-        // Update min slider when min input changes
-        minPriceInput.addEventListener("input", function () {
-            const value = Number.parseInt(this.value);
-            const maxValue = Number.parseInt(maxPriceInput.value);
-
-            // Ensure min doesn't exceed max
-            if (value > maxValue) {
-                this.value = maxValue;
-            }
-
-            minPriceSlider.value = this.value;
-            updatePriceDisplays();
-            updateSliderRange();
-        });
-
-        // Update max slider when max input changes
-        maxPriceInput.addEventListener("input", function () {
-            const value = Number.parseInt(this.value);
-            const minValue = Number.parseInt(minPriceInput.value);
-
-            // Ensure max doesn't go below min
-            if (value < minValue) {
-                this.value = minValue;
-            }
-
-            maxPriceSlider.value = this.value;
-            updatePriceDisplays();
-            updateSliderRange();
-        });
-
-        // Apply price filter when button is clicked
-        applyPriceFilterBtn.addEventListener("click", () => {
-            const minPrice = Number.parseInt(minPriceInput.value);
-            const maxPrice = Number.parseInt(maxPriceInput.value);
-
-            // Filter cars by price
-            filterCarsByPrice(minPrice, maxPrice);
-
-            showToast(
-                `Filtering cars between ${getCurrencySymbol()}${minPrice} and ${getCurrencySymbol()}${maxPrice}`,
-                "success",
-            );
-        });
-
-        // Function to update price displays
-        function updatePriceDisplays() {
-            const currency = getCurrencySymbol();
-            minPriceDisplay.textContent = `${currency}${minPriceSlider.value}`;
-            maxPriceDisplay.textContent = `${currency}${maxPriceSlider.value}`;
+    minInput.addEventListener("input", () => {
+        if (parseInt(minInput.value) > parseInt(maxInput.value)) {
+            minInput.value = maxInput.value;
         }
+    });
 
-        // Function to update slider range visual
-        function updateSliderRange() {
-            const percent1 = ((minPriceSlider.value - minPriceSlider.min) / (minPriceSlider.max - minPriceSlider.min)) * 100;
-            const percent2 = ((maxPriceSlider.value - minPriceSlider.min) / (minPriceSlider.max - minPriceSlider.min)) * 100;
-
-            sliderRange.style.left = percent1 + "%";
-            sliderRange.style.width = percent2 - percent1 + "%";
+    maxInput.addEventListener("input", () => {
+        if (parseInt(maxInput.value) < parseInt(minInput.value)) {
+            maxInput.value = minInput.value;
         }
-    }
+    });
+
+    applyBtn.addEventListener("click", () => {
+        const min = parseInt(minInput.value);
+        const max = parseInt(maxInput.value);
+        filterCarsByPrice(min, max);
+        showToast(`Filtering cars between ${getCurrencySymbol()}${min} and ${getCurrencySymbol()}${max}`, "success");
+    });
 }
 
 // Setup search functionality
 function setupSearchFunctionality() {
     const searchInput = document.getElementById('car-search');
     const searchBtn = document.getElementById('search-btn');
-    
+
     if (searchInput && searchBtn) {
-        searchBtn.addEventListener('click', function() {
+        searchBtn.addEventListener('click', function () {
             const searchTerm = searchInput.value.trim().toLowerCase();
             if (searchTerm.length > 0) {
                 searchCars(searchTerm);
@@ -558,9 +474,9 @@ function setupSearchFunctionality() {
                 showToast('Please enter a search term', 'error');
             }
         });
-        
+
         // Also allow search on Enter key
-        searchInput.addEventListener('keypress', function(e) {
+        searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchBtn.click();
             }
@@ -572,17 +488,17 @@ function setupSearchFunctionality() {
 function searchCars(searchTerm) {
     const carsContainer = document.getElementById('cars-container');
     if (!carsContainer) return;
-    
+
     // Filter cars by search term
-    const filteredCars = carData.filter(car => 
+    const filteredCars = carData.filter(car =>
         car.name.toLowerCase().includes(searchTerm)
     );
-    
+
     if (filteredCars.length === 0) {
         showToast('No cars found matching your search', 'error');
         return;
     }
-    
+
     // Render filtered cars
     renderCars(filteredCars);
     showToast(`Found ${filteredCars.length} cars matching "${searchTerm}"`, 'success');
@@ -592,25 +508,25 @@ function searchCars(searchTerm) {
 function filterCarsByPrice(minPrice, maxPrice) {
     const carsContainer = document.getElementById('cars-container');
     if (!carsContainer) return;
-    
+
     // Convert prices based on current currency
     const currency = localStorage.getItem('currency') || 'usd';
     const rate = currencyRates[currency] || 1;
-    
+
     // Convert min and max prices to USD for comparison with data
     const minPriceUSD = Math.round(minPrice / rate);
     const maxPriceUSD = Math.round(maxPrice / rate);
-    
+
     // Filter cars by price range
-    const filteredCars = carData.filter(car => 
+    const filteredCars = carData.filter(car =>
         car.price >= minPriceUSD && car.price <= maxPriceUSD
     );
-    
+
     if (filteredCars.length === 0) {
         showToast('No cars found in this price range', 'error');
         return;
     }
-    
+
     // Render filtered cars
     renderCars(filteredCars);
 }
@@ -619,27 +535,27 @@ function filterCarsByPrice(minPrice, maxPrice) {
 function renderCars(cars) {
     const carsContainer = document.getElementById('cars-container');
     if (!carsContainer) return;
-    
+
     // Get current currency and language
     const currency = localStorage.getItem('currency') || 'usd';
     const lang = localStorage.getItem('language') || 'en';
     const rate = currencyRates[currency] || 1;
     const symbol = getCurrencySymbol();
     const hour = lang === 'ar' ? 'ساعة' : 'hour';
-    
+
     // Clear container
     carsContainer.innerHTML = '';
-    
+
     // Add cars to container
     cars.forEach(car => {
         const convertedPrice = (car.price * rate).toFixed(1);
-        
+
         const carCard = document.createElement('div');
         carCard.className = 'car-card';
-        carCard.onclick = function() {
+        carCard.onclick = function () {
             window.location.href = 'car-details.html';
         };
-        
+
         carCard.innerHTML = `
             <div class="car-image">${car.name}</div>
             <div class="car-info">
@@ -647,7 +563,7 @@ function renderCars(cars) {
                 <div class="car-price">${symbol}${convertedPrice}/${hour}</div>
             </div>
         `;
-        
+
         carsContainer.appendChild(carCard);
     });
 }
@@ -663,56 +579,56 @@ function setupFormValidation() {
     // Login form validation
     const loginForm = document.querySelector('form.auth-form');
     if (loginForm && loginForm.closest('.auth-section').querySelector('h1').textContent.includes('Login')) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             const emailPhone = document.getElementById('email-phone').value;
             const password = document.getElementById('password').value;
-            
+
             if (!emailPhone || !password) {
                 showError('Please fill in all fields');
                 return;
             }
-            
+
             // Simulate login (in a real app, this would be an API call)
             login(emailPhone, password);
         });
     }
-    
+
     // Signup form validation
     const signupForm = document.querySelector('form.auth-form');
     if (signupForm && signupForm.closest('.auth-section').querySelector('h1').textContent.includes('Sign up')) {
-        signupForm.addEventListener('submit', function(e) {
+        signupForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value;
             const name = document.getElementById('name').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
             const phone = document.getElementById('phone').value;
             const id = document.getElementById('id').value;
-            
+
             if (!email || !name || !password || !confirmPassword || !phone || !id) {
                 showError('Please fill in all fields');
                 return;
             }
-            
+
             if (password !== confirmPassword) {
                 showError('Passwords do not match');
                 return;
             }
-            
+
             // Simulate signup (in a real app, this would be an API call)
             signup(email, name, password, phone, id);
         });
     }
-    
+
     // Car details form (rent button)
     const rentButton = document.querySelector('.rental-details + .btn-primary');
     if (rentButton && rentButton.textContent.includes('Rent')) {
-        rentButton.addEventListener('click', function(e) {
+        rentButton.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             // Check if user is logged in
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!isLoggedIn) {
@@ -722,15 +638,15 @@ function setupFormValidation() {
                 }, 2000);
                 return;
             }
-            
+
             const hours = document.getElementById('hours').value;
             const minutes = document.getElementById('minutes').value;
-            
+
             if (!hours || hours < 1) {
                 showToast('Please select at least 1 hour for rental', 'error');
                 return;
             }
-            
+
             // Simulate car rental (in a real app, this would be an API call)
             showToast('Car rented successfully!', 'success');
         });
@@ -743,40 +659,40 @@ function setupCarFilters() {
     const sortButtons = document.querySelectorAll('.sort-btn');
     if (sortButtons.length > 0) {
         sortButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 // Remove active class from all buttons
                 sortButtons.forEach(btn => btn.classList.remove('active'));
-                
+
                 // Add active class to clicked button
                 this.classList.add('active');
-                
+
                 // Get sort type
                 const sortType = this.getAttribute('data-sort');
-                
+
                 // Sort cars
                 sortCars(sortType);
-                
+
                 // Show toast
                 showToast(`Sorting by ${this.textContent}`, 'success');
             });
         });
     }
-    
+
     // Filter buttons
     const filterButtons = document.querySelectorAll('.filter-btn');
     if (filterButtons.length > 0) {
         filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 // Toggle active class on filter buttons
                 this.classList.toggle('active');
-                
+
                 // Apply filters
                 applyFilters();
-                
+
                 // Show toast
                 const isActive = this.classList.contains('active');
                 const filterType = this.textContent;
-                
+
                 if (isActive) {
                     showToast(`${filterType} filter applied`, 'success');
                 } else {
@@ -790,7 +706,7 @@ function setupCarFilters() {
 // Sort cars
 function sortCars(sortType) {
     let sortedCars = [...carData];
-    
+
     switch (sortType) {
         case 'new':
             sortedCars.sort((a, b) => b.isNew - a.isNew);
@@ -805,7 +721,7 @@ function sortCars(sortType) {
             sortedCars.sort((a, b) => b.rating - a.rating);
             break;
     }
-    
+
     // Apply any active filters
     applyFilters(sortedCars);
 }
@@ -814,19 +730,19 @@ function sortCars(sortType) {
 function applyFilters(cars = [...carData]) {
     const recommendedFilter = document.getElementById('recommended-filter');
     const availableFilter = document.getElementById('available-filter');
-    
+
     let filteredCars = cars;
-    
+
     // Apply recommended filter
     if (recommendedFilter && recommendedFilter.classList.contains('active')) {
         filteredCars = filteredCars.filter(car => car.rating >= 4.5);
     }
-    
+
     // Apply available filter
     if (availableFilter && availableFilter.classList.contains('active')) {
         filteredCars = filteredCars.filter(car => car.isAvailable);
     }
-    
+
     // Render filtered cars
     renderCars(filteredCars);
 }
@@ -835,7 +751,7 @@ function applyFilters(cars = [...carData]) {
 function setupCarCardEvents() {
     const carCards = document.querySelectorAll('.car-card');
     carCards.forEach(card => {
-        card.addEventListener('click', function() {
+        card.addEventListener('click', function () {
             window.location.href = 'car-details.html';
         });
     });
@@ -845,14 +761,14 @@ function setupCarCardEvents() {
 function setupUserMenu() {
     const userMenuButton = document.querySelector('.user-menu-button');
     if (userMenuButton) {
-        userMenuButton.addEventListener('click', function(e) {
+        userMenuButton.addEventListener('click', function (e) {
             e.stopPropagation();
             const dropdown = document.querySelector('.user-menu-dropdown');
             dropdown.classList.toggle('active');
         });
-        
+
         // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const userMenu = document.querySelector('.user-menu');
             if (userMenu && !userMenu.contains(e.target)) {
                 document.querySelector('.user-menu-dropdown').classList.remove('active');
@@ -867,9 +783,9 @@ function login(emailPhone, password) {
     // For demo purposes, we'll just simulate a successful login
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('username', emailPhone.split('@')[0]);
-    
+
     showToast('Login successful!', 'success');
-    
+
     // Redirect to home page after a short delay
     setTimeout(() => {
         window.location.href = 'index.html';
@@ -882,9 +798,9 @@ function signup(email, name, password, phone, id) {
     // For demo purposes, we'll just simulate a successful signup
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('username', name);
-    
+
     showToast('Account created successfully!', 'success');
-    
+
     // Redirect to home page after a short delay
     setTimeout(() => {
         window.location.href = 'index.html';
@@ -895,9 +811,9 @@ function signup(email, name, password, phone, id) {
 function logout() {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('username');
-    
+
     showToast('Logged out successfully!', 'success');
-    
+
     // Redirect to home page after a short delay
     setTimeout(() => {
         window.location.href = 'index.html';
@@ -913,10 +829,10 @@ function showError(message) {
         errorElement.className = 'error-message';
         document.querySelector('.auth-form').appendChild(errorElement);
     }
-    
+
     errorElement.textContent = message;
     errorElement.classList.add('active');
-    
+
     // Hide error after 3 seconds
     setTimeout(() => {
         errorElement.classList.remove('active');
@@ -932,7 +848,7 @@ function showToast(message, type = 'info') {
         toastContainer.className = 'toast-container';
         document.body.appendChild(toastContainer);
     }
-    
+
     // Create toast element
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -940,15 +856,15 @@ function showToast(message, type = 'info') {
         <div>${message}</div>
         <button class="toast-close">&times;</button>
     `;
-    
+
     // Add toast to container
     toastContainer.appendChild(toast);
-    
+
     // Add close event listener
-    toast.querySelector('.toast-close').addEventListener('click', function() {
+    toast.querySelector('.toast-close').addEventListener('click', function () {
         toast.remove();
     });
-    
+
     // Auto-remove toast after 3 seconds
     setTimeout(() => {
         toast.remove();
@@ -966,7 +882,7 @@ function loadSavedPreferences() {
             darkModeToggle.checked = true;
         }
     }
-    
+
     // Load language
     const savedLanguage = localStorage.getItem('language');
     if (savedLanguage) {
@@ -974,11 +890,11 @@ function loadSavedPreferences() {
         if (languageBtn) {
             languageBtn.querySelector('span').textContent = savedLanguage.toUpperCase();
         }
-        
+
         // Apply language change
         applyLanguageChange(savedLanguage);
     }
-    
+
     // Load currency
     const savedCurrency = localStorage.getItem('currency');
     if (savedCurrency) {
@@ -986,7 +902,7 @@ function loadSavedPreferences() {
         if (currencyBtn) {
             currencyBtn.querySelector('span').textContent = savedCurrency.toUpperCase();
         }
-        
+
         // Apply currency change
         applyCurrencyChange(savedCurrency);
     }
